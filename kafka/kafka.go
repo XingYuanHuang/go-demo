@@ -1,8 +1,8 @@
 package kafka
 
 import (
+	"fmt"
 	"github.com/Shopify/sarama"
-	"github.com/XingYuanHuang/go-demo/log"
 	"strings"
 )
 
@@ -19,13 +19,13 @@ func InitConsumer(hosts string) (err error) {
 	config := sarama.NewConfig()
 	client, err := sarama.NewClient(strings.Split(hosts, ","), config)
 	if err != nil {
-		log.Error("unable to create kafka client: %q", err.Error())
+		fmt.Println("unable to create kafka client:", err.Error())
 		return
 	}
 
 	consumer, err = sarama.NewConsumerFromClient(client)
 	if err != nil {
-		log.Error("unable to create kafka client: %q", err.Error())
+		fmt.Println(err.Error())
 		return
 	}
 
@@ -36,7 +36,7 @@ func InitConsumer(hosts string) (err error) {
 func LoopConsumer(topic string, callback ConsumerCallback) (err error) {
 	partitionConsumer, err := consumer.ConsumePartition(topic, 0, sarama.OffsetNewest)
 	if err != nil {
-		log.Error("error:", err.Error())
+		fmt.Println(err.Error())
 		return
 	}
 	defer partitionConsumer.Close()
@@ -54,12 +54,12 @@ func InitProducer(hosts string) (err error) {
 	config := sarama.NewConfig()
 	client, err := sarama.NewClient(strings.Split(hosts, ","), config)
 	if err != nil {
-		log.Error("unable to create kafka client: %q", err.Error())
+		fmt.Println("unable to create kafka client:", err.Error())
 		return
 	}
 	producer, err = sarama.NewAsyncProducerFromClient(client)
 	if err != nil {
-		log.Error("error: %q", err.Error())
+		fmt.Println(err.Error())
 		return
 	}
 
@@ -69,23 +69,23 @@ func InitProducer(hosts string) (err error) {
 // 发送消息
 func Send(topic, data string) {
 	producer.Input() <- &sarama.ProducerMessage{Topic: topic, Key: nil, Value: sarama.StringEncoder(data)}
-	log.Trace("kafka", "Produced message: ["+data+"]")
+	fmt.Println("kafka", "Produced message: ["+data+"]")
 }
 
 // 关闭
 func Close() {
-	log.Trace("kafka", "Close")
+	fmt.Println("kafka Close")
 	if producer != nil {
 		err := producer.Close()
 		if err != nil {
-			log.Error("producer close error: %q", err.Error())
+			fmt.Println("producer close error: ", err.Error())
 		}
 	}
 
 	if consumer != nil {
 		err := consumer.Close()
 		if err != nil {
-			log.Error("consumer close error: %q", err.Error())
+			fmt.Println("consumer close error:", err.Error())
 		}
 	}
 }

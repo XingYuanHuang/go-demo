@@ -1,4 +1,4 @@
-package producer
+package main
 
 import (
 	"github.com/XingYuanHuang/go-demo/kafka"
@@ -10,7 +10,7 @@ import (
 func main() {
 
 	// 初始化生产生
-	err := kafka.InitProducer("192.168.1.29:9092")
+	err := kafka.InitProducer("47.110.12.15:9092")
 	if err != nil {
 		panic(err)
 	}
