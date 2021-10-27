@@ -2,7 +2,7 @@ package producer
 
 import (
 	"os/signal"
-	"producer"
+
 	"runtime"
 	"syscall"
 )
