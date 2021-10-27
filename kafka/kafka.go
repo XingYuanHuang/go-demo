@@ -19,13 +19,13 @@ func InitConsumer(hosts string) (err error) {
 	config := sarama.NewConfig()
 	client, err := sarama.NewClient(strings.Split(hosts, ","), config)
 	if err != nil {
-		log.Error("unable to create kafka client: %q", err)
+		log.Error("unable to create kafka client: %q", err.Error())
 		return
 	}
 
 	consumer, err = sarama.NewConsumerFromClient(client)
 	if err != nil {
-		log.Error(err)
+		log.Error("unable to create kafka client: %q", err.Error())
 		return
 	}
 
@@ -36,7 +36,7 @@ func InitConsumer(hosts string) (err error) {
 func LoopConsumer(topic string, callback ConsumerCallback) (err error) {
 	partitionConsumer, err := consumer.ConsumePartition(topic, 0, sarama.OffsetNewest)
 	if err != nil {
-		log.Error(err)
+		log.Error("error:", err.Error())
 		return
 	}
 	defer partitionConsumer.Close()
@@ -54,12 +54,12 @@ func InitProducer(hosts string) (err error) {
 	config := sarama.NewConfig()
 	client, err := sarama.NewClient(strings.Split(hosts, ","), config)
 	if err != nil {
-		log.Error("unable to create kafka client: %q", err)
+		log.Error("unable to create kafka client: %q", err.Error())
 		return
 	}
 	producer, err = sarama.NewAsyncProducerFromClient(client)
 	if err != nil {
-		log.Error(err)
+		log.Error("error: %q", err.Error())
 		return
 	}
 
@@ -76,10 +76,16 @@ func Send(topic, data string) {
 func Close() {
 	log.Trace("kafka", "Close")
 	if producer != nil {
-		producer.Close()
+		err := producer.Close()
+		if err != nil {
+			log.Error("producer close error: %q", err.Error())
+		}
 	}
 
 	if consumer != nil {
-		consumer.Close()
+		err := consumer.Close()
+		if err != nil {
+			log.Error("consumer close error: %q", err.Error())
+		}
 	}
 }
