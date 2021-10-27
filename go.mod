@@ -1,4 +1,4 @@
-module awesomeProject
+module github.com/XingYuanHuang/go-demo
 
 go 1.13
 

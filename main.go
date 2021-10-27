@@ -1,8 +1,8 @@
 package producer
 
 import (
+	"github.com/XingYuanHuang/go-demo/producer"
 	"os/signal"
-
 	"runtime"
 	"syscall"
 )
@@ -16,11 +16,11 @@ func main() {
 	}
 
 	// 关闭
-	defer kafka.Close()
+	defer producer.Close()
 
 	// 发送测试消息
-	kafka.Send("Test", "This is Test Msg")
-	kafka.Send("Test", "Hello Guoke")
+	producer.Send("Test", "This is Test Msg")
+	producer.Send("Test", "Hello Guoke")
 
 	signal.Ignore(syscall.SIGHUP)
 	runtime.Goexit()

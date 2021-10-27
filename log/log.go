@@ -2,13 +2,14 @@ package log
 
 import (
 	"fmt"
+
 	"github.com/beego/beego/v2/core/logs"
 )
 
-// Log 日志对象
+// 日志对象
 var Log *logs.BeeLogger
 
-// Tags 显示tags对象
+// 显示tags对象
 var Tags = make(map[string]bool)
 
 // 默认初始化
@@ -23,7 +24,7 @@ func init() {
 	Log.SetLogFuncCallDepth(3)
 }
 
-// Init 兼容接口
+// 兼容接口
 func Init(logFile string, tags []string) (err error) {
 	setLogFile("file", logFile, 30, true)
 	setTags(tags)
@@ -31,7 +32,7 @@ func Init(logFile string, tags []string) (err error) {
 	return
 }
 
-// InitLog 初始化日志参数
+// 初始化日志参数
 // logWay: file-输出到文件；console-输出到控制台
 // logFile: 日志文件
 // logLevel: 日志等级
@@ -101,7 +102,7 @@ func getTag(tag string) (msg string, show bool) {
 	return
 }
 
-// Error wrap log
+// wrap log
 func Error(tag, format string, v ...interface{}) {
 	tag, show := getTag(tag)
 	if show {
