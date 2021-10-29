@@ -1,39 +1,44 @@
-package producer
+package main
 
 import (
-	"fmt"
-	"github.com/Shopify/sarama"
-	_ "github.com/go-sql-driver/mysql"
-	"strings"
+	"github.com/XingYuanHuang/go-demo/kafka"
+	"math/rand"
+	"time"
 )
 
-var producer sarama.AsyncProducer
+func main() {
 
-// InitProducer 初始化生产者
-func InitProducer(hosts string) {
-	config := sarama.NewConfig()
-	client, err := sarama.NewClient(strings.Split(hosts, ","), config)
+	//每10秒发消息
+	loopProducer()
+	//signal.Ignore(syscall.SIGHUP)
+	//runtime.Goexit()
+}
+func loopProducer() {
+	// 初始化生产生
+	err := kafka.InitProducer("47.110.12.65:9092")
 	if err != nil {
-		fmt.Println(err.Error())
-	}
-	producer, err = sarama.NewAsyncProducerFromClient(client)
-	if err != nil {
-		fmt.Println(err.Error())
+		panic(err)
 	}
 
+	// 关闭
+	defer kafka.Close()
+	// 发送测试消息
+	i := 0
+	for {
+
+		kafka.Send("Test", randSeq(6))
+		time.Sleep(time.Second * 1)
+		i++
+	}
 }
 
-// Send 发送消息
-func Send(topic, data string) {
-	producer.Input() <- &sarama.ProducerMessage{Topic: topic, Key: nil, Value: sarama.StringEncoder(data)}
-	fmt.Println("consumer", "Produced message: ["+data+"]")
-}
-
-func Close() {
-	if producer != nil {
-		err := producer.Close()
-		if err != nil {
-			fmt.Println(err.Error())
-		}
+//生成随机数据
+func randSeq(n int) string {
+	//letters := []rune("abcdefghijklmnopqrstuvwxyz")
+	letters := []rune("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")
+	b := make([]rune, n)
+	for i := range b {
+		b[i] = letters[rand.Intn(len(letters))]
 	}
+	return string(b)
 }

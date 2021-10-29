@@ -9,18 +9,18 @@ import (
 
 func main() {
 
-	// 初始化生产生
-	err := kafka.InitProducer("47.110.12.15:9092")
+	// 初始化消费者
+	err := kafka.InitConsumer("47.110.12.65:9092")
 	if err != nil {
 		panic(err)
 	}
-
-	// 关闭
-	defer kafka.Close()
-
-	// 发送测试消息
-	kafka.Send("Test", "This is Test Msg")
-	kafka.Send("Test", "Hello Guoke")
+	// 监听
+	go func() {
+		err = kafka.LoopConsumer("Test", kafka.TopicCallBack)
+		if err != nil {
+			panic(err)
+		}
+	}()
 
 	signal.Ignore(syscall.SIGHUP)
 	runtime.Goexit()
