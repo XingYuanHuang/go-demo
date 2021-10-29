@@ -57,6 +57,20 @@ func LoopConsumer(topic string, callback ConsumerCallback) (err error) {
 		}
 	}
 }
+func TopicCallBack(topic string, data []byte) {
+	timeNow := time.Now().Format(timeFormat)
+	model := models.KafkaTest{
+		Topic:      topic,
+		Msg:        string(data),
+		CreateTime: timeNow,
+	}
+	fmt.Println(model)
+	if _, err := models.CreateTest(model); err != nil {
+		fmt.Println(timeNow+" 添加失败", err.Error())
+		return
+	}
+	fmt.Println(timeNow+" kafka", "Consumer "+"topic:"+topic+" message:"+string(data))
+}
 
 // InitProducer 初始化生产者
 func InitProducer(hosts string) (err error) {
@@ -79,7 +93,7 @@ func InitProducer(hosts string) (err error) {
 func Send(topic, data string) {
 
 	producer.Input() <- &sarama.ProducerMessage{Topic: topic, Key: nil, Value: sarama.StringEncoder(data)}
-	fmt.Println(time.Now().Format(timeFormat), "topic:"+topic+" Produced message: ["+data+"]")
+	fmt.Println(time.Now().Format(timeFormat), "Produced "+"topic:"+topic+" message: ["+data+"]")
 }
 
 // RandSeq 生成随机数据
@@ -109,18 +123,4 @@ func Close() {
 			fmt.Println(time.Now().Format(timeFormat)+"consumer close error:", err.Error())
 		}
 	}
-}
-func TopicCallBack(topic string, data []byte) {
-	timeNow := time.Now().Format(timeFormat)
-	model := models.KafkaTest{
-		Topic:      topic,
-		Msg:        string(data),
-		CreateTime: timeNow,
-	}
-	fmt.Println(model)
-	if _, err := models.CreateTest(model); err != nil {
-		fmt.Println(timeNow+" 添加失败", err.Error())
-		return
-	}
-	fmt.Println(timeNow+" kafka", "topic:"+topic+" message:"+string(data))
 }
