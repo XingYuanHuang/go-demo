@@ -3,6 +3,8 @@ package kafka
 import (
 	"fmt"
 	"github.com/Shopify/sarama"
+	"github.com/XingYuanHuang/go-demo/models"
+	"math/rand"
 	"strings"
 	"time"
 )
@@ -10,7 +12,7 @@ import (
 var (
 	producer   sarama.AsyncProducer
 	consumer   sarama.Consumer
-	timeFormat = "2006-01-02 15:04:05 "
+	timeFormat = "2006-01-02 15:04:05"
 )
 
 // ConsumerCallback 消费者回调函数
@@ -80,6 +82,17 @@ func Send(topic, data string) {
 	fmt.Println(time.Now().Format(timeFormat), "topic:"+topic+" Produced message: ["+data+"]")
 }
 
+// RandSeq 生成随机数据
+func RandSeq(n int) string {
+	//letters := []rune("abcdefghijklmnopqrstuvwxyz")
+	letters := []rune("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")
+	b := make([]rune, n)
+	for i := range b {
+		b[i] = letters[rand.Intn(len(letters))]
+	}
+	return string(b)
+}
+
 // Close 关闭
 func Close() {
 	fmt.Println("kafka Close")
@@ -98,5 +111,16 @@ func Close() {
 	}
 }
 func TopicCallBack(topic string, data []byte) {
-	fmt.Println(time.Now().Format(timeFormat)+"kafka", "topic:"+topic+" message:"+string(data))
+	timeNow := time.Now().Format(timeFormat)
+	model := models.KafkaTest{
+		Topic:      topic,
+		Msg:        string(data),
+		CreateTime: timeNow,
+	}
+	fmt.Println(model)
+	if _, err := models.CreateTest(model); err != nil {
+		fmt.Println(timeNow+" 添加失败", err.Error())
+		return
+	}
+	fmt.Println(timeNow+" kafka", "topic:"+topic+" message:"+string(data))
 }
